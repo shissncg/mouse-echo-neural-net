@@ -4,20 +4,11 @@ Mouse Echo Neural Net (MENN) is an end-to-end deep learning pipeline for automat
 - Semantic segmentations (e.g., LV on b-mode)
 - Calculations of cardiac parameters, including LV area, volume, ejection fraction, anterior/posterior wall thickness, fractional shortening, and LV Mass
 
+# Forked from 
+https://github.com/pfizer-opensource/mouse-echo-neural-net.git
+
 # Installation
 First, clone this repository and enter the directory:
-
-    git clone https://github.com/pfizer-opensource/mouse-echo-neural-net.git
-    cd mouse-echo-neural-net
-
-This project is implemented with Python and requires several packages:
-
-- TensorFlow
-- OpenCV
-- Scikit-image
-- NumPy
-- Pandas
-- ...
 
 ## Recommended (uv)
 This repo is set up as a `pyproject.toml` project so `uv` can manage the environment and run commands.
@@ -43,7 +34,7 @@ This starts a Web UI at `http://127.0.0.1:8000` (use `--host/--port` to change).
 
 You can either type an input directory path (recommended for large datasets via volume mounts), or use the upload picker to select a local folder/files in the browser.
 
-## Legacy (conda)
+## Legacy (conda) - good luck
 The original 2017–2021 environment is preserved in `environment.yml`, but it is not recommended for modern systems:
 
     conda env create -f environment.yml
@@ -102,19 +93,23 @@ For more detailed information regarding installation, data preparation, and oper
 # Containerization (Docker)
 A minimal `Dockerfile` is included.
 
-Build:
+## Using a prebuilt image
+If your organization publishes a prebuilt MENN container image, you can pull and run it directly instead of building locally.
+
+Pull the image (replace `<IMAGE_NAME>` with the actual registry/image tag you use, for example `registry.example.com/team/menn:latest`):
+
+    docker pull shincg/science/menn:latest
+
+Run the container (mount your data directory into `/data`):
+- replace </path/to/dicoms> with the absolute path to the dicom files
+```
+docker run --rm -p 8000:8000 -v </path/to/dicoms>:/data menn
+```
+
+## Building locally
+If you prefer to build the image yourself, use the included `Dockerfile`:
 
     docker build -t menn .
-
-If your machine can’t reach Docker Hub (e.g. DNS/proxy restrictions), the build will fail before it even runs your Dockerfile steps. In that case either:
-
-- Configure Docker daemon DNS/proxy/registry mirror, or
-- Build using an internal mirror by overriding the base image:
-
-    docker build -t menn --build-arg BASE_IMAGE=<your-mirrored-python-image> .
-
-Run (mount your data directory into `/data`):
-
     docker run --rm -p 8000:8000 -v /path/to/dicoms:/data menn
 
 # Contribution
