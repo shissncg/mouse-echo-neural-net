@@ -5,20 +5,15 @@ Created on Wed Nov  6 16:38:50 2019
 @author: DUANC01
 """
 
-from __future__ import print_function
-
-from skimage.transform import resize
 import numpy as np
-from keras.models import Model
-from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, Conv2DTranspose, BatchNormalization, UpSampling2D
-from keras.layers import Conv3D, Conv3DTranspose, MaxPooling3D
-from keras.optimizers import Adam, SGD
-from keras.callbacks import ModelCheckpoint
-from keras import backend as K
-from skimage.exposure import rescale_intensity
-from keras.callbacks import History
-from keras.regularizers import l2
-from keras.layers.core import Dense, Dropout, Activation
+from skimage.transform import resize
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D, Conv2DTranspose, Conv3D,
+                                     Conv3DTranspose, Dense, Dropout, Input, MaxPooling2D, MaxPooling3D,
+                                     UpSampling2D, concatenate)
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam, SGD
+from tensorflow.keras.regularizers import l2
 
 # Some parameters
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code 
@@ -127,7 +122,7 @@ def get_unet(numLabels=4):
 
     model = Model(inputs=[inputs], outputs=[conv10])
 
-    model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
     # model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, 'accuracy'])
     # model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_multilabel_loss, metrics=[dice_coef_multilabel, 'accuracy'])
 

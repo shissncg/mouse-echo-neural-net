@@ -12,6 +12,15 @@ import scipy
 
 import matplotlib.pyplot as plt
 
+def _to_gray(img: np.ndarray) -> np.ndarray:
+    if img.ndim == 2:
+        return img
+    if img.ndim == 3 and img.shape[-1] == 1:
+        return img[:, :, 0]
+    if img.ndim == 3 and img.shape[-1] >= 3:
+        return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    raise ValueError(f"Unsupported image shape for grayscale conversion: {img.shape}")
+
 def echo_preprocess(img, img_annotated):
     """
     Input:
@@ -24,7 +33,7 @@ def echo_preprocess(img, img_annotated):
     """
     
     # Identify Echo Image Part (i.e., rectanglular bounding box)
-    ret, threshed_img = cv2.threshold(cv2.cvtColor(img_annotated, cv2.COLOR_RGB2GRAY), 1, 255, cv2.THRESH_BINARY)
+    ret, threshed_img = cv2.threshold(_to_gray(img_annotated), 1, 255, cv2.THRESH_BINARY)
     contours, hier = cv2.findContours(threshed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     sort = sorted(contours, key=cv2.contourArea, reverse=True)   
     x, y, w, h = cv2.boundingRect(sort[0])
@@ -66,13 +75,15 @@ def dicom_preprocess(img):
     Extract the echo image part from a raw DICOM frame
     """
     # Identify Echo Image Part (i.e., rectanglular bounding box)
-    ret, threshed_img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 1, 255, cv2.THRESH_BINARY)
+    ret, threshed_img = cv2.threshold(_to_gray(img), 1, 255, cv2.THRESH_BINARY)
     contours, hier = cv2.findContours(threshed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     sort = sorted(contours, key=cv2.contourArea, reverse=True)   
     x, y, w, h = cv2.boundingRect(sort[0])
     
-    echo_img = img[y:y+h,x:x+w,:]
-    return echo_img[:,:,0]
+    echo_img = img[y:y+h, x:x+w]
+    if echo_img.ndim == 2:
+        return echo_img
+    return echo_img[:, :, 0]
 
 def findLongAxis(mask):
     """
@@ -128,7 +139,7 @@ def findcardiacphase(labels):
     To find all systole phase and diastole phase
     
     """
-    areas = np.sum(np.reshape(labels, (labels.shape[0],-1)),axis=1)
+    areas = np.sum(np.reshape(labels, (labels.shape[0], -1)), axis=1, dtype=np.float64)
     
     # smooth the areas curve; need to adjust the window size parameter
     areas = scipy.ndimage.gaussian_filter(areas, 5)
@@ -147,14 +158,14 @@ def findcardiacpeaks(labels):
     To find all systole phase and diastole phase with scipy.signal_find_peaks func
     
     """
-    areas = np.sum(np.reshape(labels, (labels.shape[0],-1)),axis=1)
+    areas = np.sum(np.reshape(labels, (labels.shape[0], -1)), axis=1, dtype=np.float64)
     
     # smooth the areas curve; need to adjust the window size parameter
     areas = scipy.ndimage.gaussian_filter(areas, 5)
     
     diastoles = scipy.signal.find_peaks(areas, distance=10)
     diastoles = diastoles[0]
-    systoles = scipy.signal.find_peaks(areas * -1, distance=10)
+    systoles = scipy.signal.find_peaks(-areas, distance=10)
     systoles = systoles[0]
     
     # when only one cardiac cycle is labeled

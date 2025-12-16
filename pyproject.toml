@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mouse-echo-neural-net"
+version = "0.2.0"
+description = "Mouse Echo Neural Net (MENN): automated preclinical echocardiogram analysis (b-mode + m-mode)."
+readme = "README.MD"
+requires-python = ">=3.11,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Pfizer MENN contributors" }]
+dependencies = [
+  "tensorflow>=2.16",
+  "numpy",
+  "scipy",
+  "pandas",
+  "scikit-image",
+  "pydicom",
+  "matplotlib",
+  "opencv-python-headless",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.30",
+  "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+menn = "menn_cli:main"
+menn-bmode = "echoanalysis_main:main"
+menn-mmode = "echoanalysis_mmode_main:main"
+menn-web = "menn_web:main"
+menn-ui = "menn_web:main"
+
+[tool.setuptools]
+py-modules = [
+  "Echo_Segmenter_UI_Full",
+  "echoanalysis_main",
+  "echoanalysis_mmode_main",
+  "menn_cli",
+  "menn_web",
+  "preprocessing_modes",
+  "util_bmode",
+  "util_mmode",
+  "util_nn_bmode",
+  "util_nn_mmode",
+]

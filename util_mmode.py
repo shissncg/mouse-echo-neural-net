@@ -227,7 +227,13 @@ def getRes(data):
 
 def crop_frame(img):
     ''' Function to locate bounding box for actual image part'''
-    ret, threshed_img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), 1, 255, cv2.THRESH_BINARY)
+    if img.ndim == 2:
+        gray = img
+    elif img.ndim == 3 and img.shape[-1] == 1:
+        gray = img[:, :, 0]
+    else:
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    ret, threshed_img = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
     contours, hier = cv2.findContours(threshed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     sort = sorted(contours, key=cv2.contourArea, reverse=True)   
     x, y, w, h = cv2.boundingRect(sort[0])
