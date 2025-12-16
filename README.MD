@@ -98,7 +98,7 @@ If your organization publishes a prebuilt MENN container image, you can pull and
 
 Pull the image (replace `<IMAGE_NAME>` with the actual registry/image tag you use, for example `registry.example.com/team/menn:latest`):
 
-    docker pull shincg/science/menn:latest
+    docker pull shissncg/menn:latest
 
 Run the container (mount your data directory into `/data`):
 - replace </path/to/dicoms> with the absolute path to the dicom files
